@@ -3,7 +3,7 @@ services:
     image: bcdmusic-frontend:latest
     container_name: bcdmusic-frontend
     ports:
-      - "80:3000"
+      - "3001:3000"
     restart: unless-stopped
     networks:
       - bcdmusic-network

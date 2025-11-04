@@ -63,6 +63,41 @@ jobs:
             docker system prune -f
           EOF
 
+      - name: Setup Nginx Reverse Proxy
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd ~/BCDMusic
+            
+            # Check if nginx is installed
+            if ! command -v nginx &> /dev/null; then
+              echo "Installing nginx..."
+              sudo yum install -y nginx || sudo apt-get update && sudo apt-get install -y nginx || echo "Nginx installation failed, please install manually"
+            fi
+            
+            # Copy nginx config (try different locations for different Linux distributions)
+            echo "Setting up nginx configuration..."
+            if [ -d "/etc/nginx/conf.d" ]; then
+              sudo cp nginx-bcdmusic.conf /etc/nginx/conf.d/bcdmusic.conf
+              echo "Config copied to /etc/nginx/conf.d/"
+            elif [ -d "/etc/nginx/sites-available" ]; then
+              sudo cp nginx-bcdmusic.conf /etc/nginx/sites-available/bcdmusic.conf
+              sudo ln -sf /etc/nginx/sites-available/bcdmusic.conf /etc/nginx/sites-enabled/bcdmusic.conf
+              echo "Config copied to /etc/nginx/sites-available/ and symlinked"
+            else
+              echo "Could not find nginx config directory, please copy manually"
+            fi
+            
+            # Test nginx configuration
+            sudo nginx -t || echo "Nginx config test failed - check manually"
+            
+            # Reload nginx
+            sudo systemctl reload nginx 2>/dev/null || sudo service nginx reload 2>/dev/null || echo "Nginx reload failed - please reload manually with: sudo systemctl reload nginx"
+            
+            echo "Nginx configuration complete"
+          EOF
+
       - name: Verify deployment
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
