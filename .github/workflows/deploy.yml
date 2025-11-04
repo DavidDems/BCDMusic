@@ -29,15 +29,51 @@ jobs:
             --exclude 'dist' \
             ./ ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/BCDMusic/
 
+      - name: Verify files copied to EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "Checking files in ~/BCDMusic..."
+            ls -la ~/BCDMusic/
+            echo "Checking for dockerfile and docker-compose.yml..."
+            ls -la ~/BCDMusic/dockerfile ~/BCDMusic/docker-compose.yml
+          EOF
+
       - name: Deploy on EC2
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
             cd ~/BCDMusic
-            docker-compose down
+            echo "Current directory: $(pwd)"
+            echo "Stopping existing containers..."
+            docker-compose down || true
+            echo "Building Docker image..."
             docker-compose build --no-cache
+            echo "Verifying image was created..."
+            docker images | grep bcdmusic || docker images
+            echo "Starting containers..."
             docker-compose up -d
+            echo "Checking container status..."
+            docker ps
+            echo "Checking if container is running..."
+            sleep 5
+            docker ps | grep bcdmusic-frontend || echo "Container not found!"
+            echo "Cleaning up old images..."
             docker system prune -f
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "Final verification..."
+            echo "Docker images:"
+            docker images
+            echo "Running containers:"
+            docker ps
+            echo "Container logs:"
+            docker logs bcdmusic-frontend --tail 50 || echo "No logs available"
           EOF
 
       - name: Cleanup
