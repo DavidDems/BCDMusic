@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: bcdmusic-frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - bcdmusic-network
+
+networks:
+  bcdmusic-network:
+    driver: bridge
