@@ -48,8 +48,8 @@ jobs:
             echo "Current directory: $(pwd)"
             echo "Stopping existing containers..."
             docker-compose down || true
-            echo "Building Docker image..."
-            docker-compose build --no-cache
+            echo "Building Docker image with docker build..."
+            docker build -t bcdmusic-frontend:latest -f dockerfile .
             echo "Verifying image was created..."
             docker images | grep bcdmusic || docker images
             echo "Starting containers..."
