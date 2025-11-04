@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'mobile-lg': '1000px',
+      },
       colors: {
         gold: {
           light: '#F5E6D3',

@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import Hamburger from './Hamburger';
-import MobileNavbar from './MobileNavbar';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,7 +9,6 @@ export default function Navbar() {
     { name: 'Operas', href: '#' },
     { name: 'Ballets', href: '#' },
     { name: 'Documentaries', href: '#' },
-    { name: 'Master Classes', href: '#' },
     { name: 'Jazz', href: '#' },
   ];
 
@@ -31,8 +28,8 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-6 flex-1 justify-center">
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-6 flex-1 justify-center">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -45,8 +42,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
+          {/* Search Bar and Login Button */}
+          <div className="flex items-center space-x-4">
             <form onSubmit={handleSearch} className="flex items-center">
               <input
                 type="text"
@@ -78,7 +75,7 @@ export default function Navbar() {
               </button>
             </form>
 
-            {/* Login Button - Desktop */}
+            {/* Login Button */}
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -92,29 +89,7 @@ export default function Navbar() {
               Login
             </button>
           </div>
-
-          {/* Mobile: Login Button and Hamburger */}
-          <div className="md:hidden flex items-center gap-3">
-            {/* Mobile Login Button */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                // Non-functional link
-              }}
-              className="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-lg transition-colors duration-200 font-medium shadow-md text-sm"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
-            >
-              Login
-            </button>
-            {/* Mobile Hamburger Button */}
-            <Hamburger navLinks={navLinks} />
-          </div>
         </div>
-        
-        {/* Mobile Search Bar */}
-        <MobileNavbar />
       </div>
     </nav>
   );

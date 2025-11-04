@@ -41,7 +41,7 @@ export default function Hamburger({ navLinks }: HamburgerProps) {
       {/* Hamburger Button - Mobile Only */}
       <button
         onClick={toggleModal}
-        className="md:hidden hamburger-button text-white hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg p-2 transition-colors"
+        className="mobile-lg:hidden hamburger-button text-white hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg p-2 transition-colors"
         style={{ color: 'white' }}
         aria-label="Toggle menu"
         aria-expanded={isOpen}
@@ -63,7 +63,7 @@ export default function Hamburger({ navLinks }: HamburgerProps) {
 
       {/* Modal Overlay and Content */}
       {isOpen && (
-        <div className="fixed inset-0 z-[10000] md:hidden">
+        <div className="fixed inset-0 z-[10000] mobile-lg:hidden">
           {/* Overlay - Fades out the rest of the screen */}
           <div
             className="absolute inset-0 bg-black/60 transition-opacity duration-300"

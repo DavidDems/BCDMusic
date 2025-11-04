@@ -5,7 +5,7 @@ export default function HeroCard() {
   const carouselItems = heroSlides.map((slide) => (
     <div
       key={slide.id}
-      className="relative h-[600px] md:h-[700px] bg-contain bg-center bg-no-repeat"
+      className="relative h-[400px] md:h-[700px] bg-contain bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${slide.image})`, backgroundColor: '#151523' }}
     >
       {/* Content */}
