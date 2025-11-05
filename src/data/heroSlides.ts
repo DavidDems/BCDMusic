@@ -1,6 +1,6 @@
 // Import the images for the hero slides
 import beethovensNinthSymphony from '../assets/beethovens_ninth_symphony.jpg';
-import mozartsRequiem from '../assets/mozarts_requiem.jpg';
+import mozartsRequiem from '../assets/mozarts_requiem.png';
 import tchaikovskysSwanLake from '../assets/tchaikovskys_swan_lake.jpg';
 import bachsBrandenburgConcertos from '../assets/bachs_brandenburg_concertos.jpg';
 
