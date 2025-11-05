@@ -1,17 +1,31 @@
 import { useState } from 'react';
-import iconImage from '../../assets/icon.svg';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const navLinks = [
-    { name: 'Home', href: '#' },
-    { name: 'Concerts', href: '#' },
-    { name: 'Operas', href: '#' },
-    { name: 'Ballets', href: '#' },
-    { name: 'Documentaries', href: '#' },
-    { name: 'Jazz', href: '#' },
+    { name: 'Home', href: '#home' },
+    { name: 'Concerts', href: '#concerts' },
+    { name: 'Orchestras', href: '#orchestras' },
+    { name: 'Artists', href: '#artists' },
+    { name: 'Playlists', href: '#playlists' },
+    { name: 'Articles', href: '#articles' },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      const offset = 80; // Account for sticky navbar
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +38,6 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-3">
-            <img
-              src={iconImage}
-              alt="Great Music Icon"
-              className="w-10 h-10"
-            />
             <a href="#" className="text-2xl font-serif font-bold text-white hover:opacity-80" style={{ color: 'white' }}>
               Great Music
             </a>
@@ -40,6 +49,7 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="text-white hover:opacity-80 transition-colors duration-200 font-medium"
                 style={{ color: 'white' }}
               >

@@ -1,13 +1,20 @@
+import { useState } from 'react';
 import SuggestionsCarousel from '../carousels/SuggestionsCarousel';
 import { curatedPlaylists } from '../../data/playlists';
+import DetailsCard from './DetailsCard';
 
 export default function SuggestionCard() {
+  const [selectedPlaylist, setSelectedPlaylist] = useState<typeof curatedPlaylists[0] | null>(null);
   const carouselItems = curatedPlaylists.map((playlist) => (
     <div
       key={playlist.id}
       className="px-2 sm:px-3"
     >
-      <div className="group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" style={{ backgroundColor: '#1b1c2f' }}>
+      <div 
+        className="group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
+        style={{ backgroundColor: '#1b1c2f' }}
+        onClick={() => setSelectedPlaylist(playlist)}
+      >
         <div className="relative h-48 sm:h-56 overflow-hidden" style={{ backgroundColor: '#1b1c2f' }}>
           <img
             src={playlist.image}
@@ -20,7 +27,7 @@ export default function SuggestionCard() {
               <span className="text-white px-2 py-1 rounded text-xs font-medium shadow-lg" style={{ backgroundColor: '#7a6b4a', color: 'white' }}>
                 {playlist.trackCount} tracks
               </span>
-              <span className="text-white px-2 py-1 rounded text-xs font-medium shadow-lg" style={{ backgroundColor: '#7a6b4a', color: 'white' }}>
+              <span className="hidden md:block text-white px-2 py-1 rounded text-xs font-medium shadow-lg" style={{ backgroundColor: '#7a6b4a', color: 'white' }}>
                 {playlist.duration}
               </span>
             </div>
@@ -33,36 +40,38 @@ export default function SuggestionCard() {
           <p className="text-sm mb-3 leading-relaxed line-clamp-2 font-medium" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
             {playlist.description}
           </p>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              // Non-functional link
-            }}
-            className="w-full px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm hover:scale-105 shadow-md opacity-0 group-hover:opacity-100"
-            style={{ backgroundColor: '#7a6b4a', color: 'white' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8a7b5a'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7a6b4a'}
-          >
-            Explore Playlist
-          </button>
         </div>
       </div>
     </div>
   ));
 
   return (
-    <section className="pt-4 md:pt-6 pb-2 md:pb-3" style={{ backgroundColor: '#1b1c2f' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 md:mb-8" style={{ color: 'white' }}>
-          Curated Collections
-        </h2>
-        <SuggestionsCarousel
-          items={carouselItems}
-          itemsVisible={4}
-          className="pb-4"
+    <>
+      <section className="pt-4 md:pt-6 pb-2 md:pb-3" style={{ backgroundColor: '#1b1c2f' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 md:mb-8" style={{ color: 'white' }}>
+            Curated Collections
+          </h2>
+          <SuggestionsCarousel
+            items={carouselItems}
+            itemsVisible={4}
+            className="pb-4"
+          />
+        </div>
+      </section>
+      {selectedPlaylist && (
+        <DetailsCard
+          isOpen={!!selectedPlaylist}
+          onClose={() => setSelectedPlaylist(null)}
+          title={selectedPlaylist.title}
+          subtitle={`${selectedPlaylist.trackCount} tracks • ${selectedPlaylist.duration}`}
+          creators={selectedPlaylist.curator}
+          content={selectedPlaylist.detailedContent || selectedPlaylist.description}
+          image={selectedPlaylist.image}
+          actionButtonText="Listen to Playlist"
         />
-      </div>
-    </section>
+      )}
+    </>
   );
 }
 

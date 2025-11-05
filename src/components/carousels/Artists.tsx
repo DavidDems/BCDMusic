@@ -1,13 +1,20 @@
+import { useState } from 'react';
 import SuggestionsCarousel from './SuggestionsCarousel';
 // Import the typescript interface for the artists
 import { artists } from '../../data/artists';
+import DetailsCard from '../cards/DetailsCard';
 
 // Artists() function that creates the list of recommended artists in a carousel
 export default function Artists() {
+  const [selectedArtist, setSelectedArtist] = useState<typeof artists[0] | null>(null);
   // Create the carousel items to be mapped in the carousel
   const carouselItems = artists.map((artist) => (
     <div key={artist.id} className="px-2 sm:px-3">
-      <div className="group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" style={{ backgroundColor: '#1b1c2f' }}>
+      <div 
+        className="group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
+        style={{ backgroundColor: '#1b1c2f' }}
+        onClick={() => setSelectedArtist(artist)}
+      >
         <div className="relative h-40 sm:h-48 overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#1b1c2f' }}>
           <img
             src={artist.image}
@@ -23,11 +30,6 @@ export default function Artists() {
           <h3 className="font-serif font-bold text-base mb-1 transition-colors" style={{ color: 'white' }}>
             {artist.name}
           </h3>
-          {artist.bio && (
-            <p className="text-xs mb-1 font-medium line-clamp-2" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-              {artist.bio}
-            </p>
-          )}
         </div>
       </div>
     </div>
@@ -35,18 +37,32 @@ export default function Artists() {
 
   // Return the artists component using the Artists() function
   return (
-    <section className="py-4 md:py-6" style={{ backgroundColor: '#1b1c2f' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 md:mb-8" style={{ color: 'white' }}>
-          Recommended Artists
-        </h2>
-        <SuggestionsCarousel
-          items={carouselItems}
-          itemsVisible={4}
-          className="pb-4"
+    <>
+      <section className="py-4 md:py-6" style={{ backgroundColor: '#1b1c2f' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 md:mb-8" style={{ color: 'white' }}>
+            Recommended Artists
+          </h2>
+          <SuggestionsCarousel
+            items={carouselItems}
+            itemsVisible={4}
+            className="pb-4"
+          />
+        </div>
+      </section>
+      {selectedArtist && (
+        <DetailsCard
+          isOpen={!!selectedArtist}
+          onClose={() => setSelectedArtist(null)}
+          title={selectedArtist.name}
+          subtitle={selectedArtist.instrument}
+          creators={undefined}
+          content={selectedArtist.detailedContent || selectedArtist.bio || ''}
+          image={selectedArtist.image}
+          actionButtonText="View Profile"
         />
-      </div>
-    </section>
+      )}
+    </>
   );
 }
 

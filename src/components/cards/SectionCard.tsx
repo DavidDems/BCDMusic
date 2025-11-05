@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import SuggestionsCarousel from '../carousels/SuggestionsCarousel';
+import DetailsCard from './DetailsCard';
 import type { SectionData } from '../../data/sectionContent';
 
 interface SectionCardProps {
@@ -6,17 +8,22 @@ interface SectionCardProps {
 }
 
 export default function SectionCard({ section }: SectionCardProps) {
+  const [selectedItem, setSelectedItem] = useState<typeof section.items[0] | null>(null);
   const carouselItems = section.items.map((item) => (
     <div
       key={item.id}
       className="px-2 sm:px-3"
     >
-      <div className="group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" style={{ backgroundColor: '#1b1c2f' }}>
-        <div className="relative h-40 sm:h-48 overflow-hidden" style={{ backgroundColor: '#1b1c2f' }}>
+      <div 
+        className="group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
+        style={{ backgroundColor: '#1b1c2f' }}
+        onClick={() => setSelectedItem(item)}
+      >
+        <div className="relative h-40 sm:h-48 overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#1b1c2f' }}>
           <img
             src={item.image}
             alt={item.title}
-            className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300"
+            className="h-full w-auto object-contain group-hover:scale-110 transition-transform duration-300"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4), transparent)' }} />
           {item.duration && (
@@ -45,18 +52,35 @@ export default function SectionCard({ section }: SectionCardProps) {
   ));
 
   return (
-    <section className="py-4 md:py-6" style={{ backgroundColor: '#1b1c2f' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 md:mb-8" style={{ color: 'white' }}>
-          {section.title}
-        </h2>
-        <SuggestionsCarousel
-          items={carouselItems}
-          itemsVisible={4}
-          className="pb-4"
+    <>
+      <section className="py-4 md:py-6" style={{ backgroundColor: '#1b1c2f' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 md:mb-8" style={{ color: 'white' }}>
+            {section.title}
+          </h2>
+          <SuggestionsCarousel
+            items={carouselItems}
+            itemsVisible={4}
+            className="pb-4"
+          />
+        </div>
+      </section>
+      {selectedItem && (
+        <DetailsCard
+          isOpen={!!selectedItem}
+          onClose={() => setSelectedItem(null)}
+          title={selectedItem.title}
+          subtitle={selectedItem.composer}
+          creators={selectedItem.performer}
+          content={selectedItem.detailedContent || `Experience ${selectedItem.title}${selectedItem.composer ? ` by ${selectedItem.composer}` : ''}${selectedItem.performer ? ` performed by ${selectedItem.performer}` : ''}.`}
+          image={selectedItem.image}
+          additionalInfo={selectedItem.duration ? { duration: selectedItem.duration } : undefined}
+          actionButtonText="Watch Now"
+          imageFit="contain"
+          imageWidth="wide"
         />
-      </div>
-    </section>
+      )}
+    </>
   );
 }
 

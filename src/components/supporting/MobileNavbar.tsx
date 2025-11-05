@@ -1,14 +1,13 @@
 import Hamburger from './Hamburger';
-import iconImage from '../../assets/icon.svg';
 
 export default function MobileNavbar() {
   const navLinks = [
-    { name: 'Home', href: '#' },
-    { name: 'Concerts', href: '#' },
-    { name: 'Operas', href: '#' },
-    { name: 'Ballets', href: '#' },
-    { name: 'Documentaries', href: '#' },
-    { name: 'Jazz', href: '#' },
+    { name: 'Home', href: '#home' },
+    { name: 'Concerts', href: '#concerts' },
+    { name: 'Orchestras', href: '#orchestras' },
+    { name: 'Artists', href: '#artists' },
+    { name: 'Playlists', href: '#playlists' },
+    { name: 'Articles', href: '#articles' },
     { name: 'Search', href: '#' },
   ];
 
@@ -18,11 +17,6 @@ export default function MobileNavbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-3">
-            <img
-              src={iconImage}
-              alt="Great Music Icon"
-              className="w-10 h-10"
-            />
             <a href="#" className="text-2xl font-serif font-bold text-white hover:opacity-80" style={{ color: 'white' }}>
               Great Music
             </a>

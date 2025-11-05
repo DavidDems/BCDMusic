@@ -108,18 +108,40 @@ export default function Hamburger({ navLinks }: HamburgerProps) {
               {/* Navigation Links */}
               <nav className="flex-1 overflow-y-auto p-4">
                 <ul className="space-y-2">
-                  {navLinks.map((link) => (
-                    <li key={link.name}>
-                      <a
-                        href={link.href}
-                        onClick={closeModal}
-                        className="block text-white hover:opacity-80 transition-opacity duration-200 py-3 px-4 rounded-lg hover:bg-white/10 text-lg font-medium"
-                        style={{ color: 'white' }}
-                      >
-                        {link.name}
-                      </a>
-                    </li>
-                  ))}
+                  {navLinks.map((link) => {
+                    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                      if (link.name !== 'Search' && link.href !== '#') {
+                        e.preventDefault();
+                        closeModal();
+                        const element = document.querySelector(link.href);
+                        if (element) {
+                          const offset = 80; // Account for sticky navbar
+                          const elementPosition = element.getBoundingClientRect().top;
+                          const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                          window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                          });
+                        }
+                      } else {
+                        closeModal();
+                      }
+                    };
+
+                    return (
+                      <li key={link.name}>
+                        <a
+                          href={link.href}
+                          onClick={handleClick}
+                          className="block text-white hover:opacity-80 transition-opacity duration-200 py-3 px-4 rounded-lg hover:bg-white/10 text-lg font-medium"
+                          style={{ color: 'white' }}
+                        >
+                          {link.name}
+                        </a>
+                      </li>
+                    );
+                  })}
                 </ul>
               </nav>
             </div>

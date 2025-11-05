@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import HeroCarousel from '../carousels/HeroCarousel';
 import { heroSlides } from '../../data/heroSlides';
+import DetailsCard from './DetailsCard';
 
 export default function HeroCard() {
+  const [selectedSlide, setSelectedSlide] = useState<typeof heroSlides[0] | null>(null);
   const carouselItems = heroSlides.map((slide) => (
     <div
       key={slide.id}
-      className="relative h-[400px] md:h-[700px] bg-contain bg-center bg-no-repeat"
+      className="relative h-[400px] md:h-[700px] bg-contain bg-center bg-no-repeat cursor-pointer"
       style={{ backgroundImage: `url(${slide.image})`, backgroundColor: '#151523' }}
+      onClick={() => setSelectedSlide(slide)}
     >
       {/* Mobile-only fade overlay at bottom */}
       <div 
@@ -37,9 +41,10 @@ export default function HeroCard() {
           <button
             onClick={(e) => {
               e.preventDefault();
-              // Non-functional link
+              e.stopPropagation();
+              setSelectedSlide(slide);
             }}
-            className="px-6 py-2 text-base sm:px-8 sm:py-3 sm:text-lg rounded-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+            className="px-6 py-2 text-base sm:px-8 sm:py-3 sm:text-lg rounded-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg cursor-pointer"
             style={{ backgroundColor: '#7a6b4a', color: 'white' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8a7b5a'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7a6b4a'}
@@ -52,15 +57,29 @@ export default function HeroCard() {
   ));
 
   return (
-    <section className="w-full overflow-hidden md:overflow-visible">
-      <div className="hero-carousel-wrapper md:w-full">
-        <HeroCarousel
-          items={carouselItems}
-          autoPlayInterval={6000}
-          pauseOnHover={true}
+    <>
+      <section className="w-full overflow-hidden md:overflow-visible">
+        <div className="hero-carousel-wrapper md:w-full">
+          <HeroCarousel
+            items={carouselItems}
+            autoPlayInterval={6000}
+            pauseOnHover={true}
+          />
+        </div>
+      </section>
+      {selectedSlide && (
+        <DetailsCard
+          isOpen={!!selectedSlide}
+          onClose={() => setSelectedSlide(null)}
+          title={selectedSlide.title}
+          subtitle={selectedSlide.composer}
+          creators={selectedSlide.performer}
+          content={selectedSlide.description}
+          image={selectedSlide.image}
+          actionButtonText="Watch Now"
         />
-      </div>
-    </section>
+      )}
+    </>
   );
 }
 
