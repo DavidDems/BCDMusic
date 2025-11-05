@@ -63,7 +63,7 @@ jobs:
             docker system prune -f
           EOF
 
-      - name: Setup Nginx Reverse Proxy
+      - name: Setup Nginx and SSL
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
@@ -76,8 +76,60 @@ jobs:
               sudo yum install -y nginx || sudo apt-get update && sudo apt-get install -y nginx || echo "Nginx installation failed, please install manually"
             fi
             
-            # Copy nginx config (try different locations for different Linux distributions)
-            echo "Setting up nginx configuration..."
+            # Ensure nginx is running
+            sudo systemctl start nginx 2>/dev/null || sudo service nginx start 2>/dev/null || true
+            sudo systemctl enable nginx 2>/dev/null || true
+            
+            # Create directory for Let's Encrypt validation
+            sudo mkdir -p /var/www/html/.well-known/acme-challenge
+            
+            # Copy initial nginx config (HTTP only, for Let's Encrypt)
+            echo "Setting up initial nginx configuration for SSL setup..."
+            if [ -d "/etc/nginx/conf.d" ]; then
+              printf 'server {\n    listen 80;\n    server_name frontendcodingchallenge.daviddems.ca;\n    location /.well-known/acme-challenge/ {\n        root /var/www/html;\n    }\n    location / {\n        return 301 https://$server_name$request_uri;\n    }\n}\n' | sudo tee /etc/nginx/conf.d/bcdmusic.conf > /dev/null
+            elif [ -d "/etc/nginx/sites-available" ]; then
+              printf 'server {\n    listen 80;\n    server_name frontendcodingchallenge.daviddems.ca;\n    location /.well-known/acme-challenge/ {\n        root /var/www/html;\n    }\n    location / {\n        return 301 https://$server_name$request_uri;\n    }\n}\n' | sudo tee /etc/nginx/sites-available/bcdmusic.conf > /dev/null
+              sudo ln -sf /etc/nginx/sites-available/bcdmusic.conf /etc/nginx/sites-enabled/bcdmusic.conf
+            fi
+            
+            # Test and reload nginx
+            sudo nginx -t && sudo systemctl reload nginx 2>/dev/null || sudo service nginx reload 2>/dev/null || true
+            
+            # Install certbot if not installed
+            if ! command -v certbot &> /dev/null; then
+              echo "Installing certbot..."
+              if command -v yum &> /dev/null; then
+                # Amazon Linux
+                sudo yum install -y certbot python3-certbot-nginx 2>/dev/null || {
+                  # Fallback: install certbot manually
+                  sudo yum install -y python3-pip
+                  sudo pip3 install certbot certbot-nginx
+                }
+              elif command -v apt-get &> /dev/null; then
+                # Ubuntu/Debian
+                sudo apt-get update
+                sudo apt-get install -y certbot python3-certbot-nginx
+              fi
+            fi
+            
+            # Obtain SSL certificate (non-interactive, use email from secret or use a dummy email)
+            echo "Obtaining SSL certificate..."
+            sudo certbot --nginx -d frontendcodingchallenge.daviddems.ca \
+              --non-interactive --agree-tos \
+              --email admin@daviddems.ca \
+              --redirect || {
+              echo "Certbot failed, trying standalone mode..."
+              # Stop nginx temporarily for standalone mode
+              sudo systemctl stop nginx 2>/dev/null || sudo service nginx stop 2>/dev/null || true
+              sudo certbot certonly --standalone -d frontendcodingchallenge.daviddems.ca \
+                --non-interactive --agree-tos \
+                --email admin@daviddems.ca \
+                --preferred-challenges http || echo "SSL certificate setup failed"
+              sudo systemctl start nginx 2>/dev/null || sudo service nginx start 2>/dev/null || true
+            }
+            
+            # Copy full nginx config with SSL
+            echo "Setting up full nginx configuration with SSL..."
             if [ -d "/etc/nginx/conf.d" ]; then
               sudo cp nginx-bcdmusic.conf /etc/nginx/conf.d/bcdmusic.conf
               echo "Config copied to /etc/nginx/conf.d/"
@@ -85,8 +137,6 @@ jobs:
               sudo cp nginx-bcdmusic.conf /etc/nginx/sites-available/bcdmusic.conf
               sudo ln -sf /etc/nginx/sites-available/bcdmusic.conf /etc/nginx/sites-enabled/bcdmusic.conf
               echo "Config copied to /etc/nginx/sites-available/ and symlinked"
-            else
-              echo "Could not find nginx config directory, please copy manually"
             fi
             
             # Test nginx configuration
@@ -95,7 +145,11 @@ jobs:
             # Reload nginx
             sudo systemctl reload nginx 2>/dev/null || sudo service nginx reload 2>/dev/null || echo "Nginx reload failed - please reload manually with: sudo systemctl reload nginx"
             
-            echo "Nginx configuration complete"
+            # Set up auto-renewal
+            echo "Setting up SSL certificate auto-renewal..."
+            (sudo crontab -l 2>/dev/null | grep -v certbot; echo "0 12 * * * certbot renew --quiet --nginx") | sudo crontab - || echo "Crontab setup failed"
+            
+            echo "Nginx and SSL configuration complete"
           EOF
 
       - name: Verify deployment
