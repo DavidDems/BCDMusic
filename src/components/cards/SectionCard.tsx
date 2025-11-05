@@ -30,12 +30,12 @@ export default function SectionCard({ section }: SectionCardProps) {
             {item.title}
           </h3>
           {item.composer && (
-            <p className="text-xs mb-1 font-medium" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <p className="hidden sm:block text-xs mb-1 font-medium" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               {item.composer}
             </p>
           )}
           {item.performer && (
-            <p className="text-xs font-medium" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+            <p className="hidden sm:block text-xs font-medium" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
               {item.performer}
             </p>
           )}

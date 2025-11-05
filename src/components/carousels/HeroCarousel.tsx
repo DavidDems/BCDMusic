@@ -155,7 +155,7 @@ export default function HeroCarousel({
 
       {/* Navigation Arrows - Right Side */}
       {items.length > 1 && (
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 flex flex-col items-end gap-3">
+        <div className="absolute right-8 bottom-20 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-10 flex flex-col items-end gap-3">
           <div className="flex flex-row gap-2">
             {/* Previous/Left Arrow Button */}
             <button

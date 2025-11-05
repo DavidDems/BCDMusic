@@ -8,6 +8,13 @@ export default function HeroCard() {
       className="relative h-[400px] md:h-[700px] bg-contain bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${slide.image})`, backgroundColor: '#151523' }}
     >
+      {/* Mobile-only fade overlay at bottom */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none sm:hidden"
+        style={{
+          background: 'linear-gradient(to bottom, transparent, #1b1c2f)'
+        }}
+      />
       {/* Content */}
       <div className="relative h-full flex items-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl" style={{ color: 'white' }}>
@@ -24,7 +31,7 @@ export default function HeroCard() {
               {slide.performer}
             </p>
           )}
-          <p className="text-base md:text-lg mb-6 leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+          <p className="hidden sm:block text-base md:text-lg mb-6 leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
             {slide.description}
           </p>
           <button
@@ -32,7 +39,7 @@ export default function HeroCard() {
               e.preventDefault();
               // Non-functional link
             }}
-            className="px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-200 hover:scale-105 shadow-lg"
+            className="px-6 py-2 text-base sm:px-8 sm:py-3 sm:text-lg rounded-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
             style={{ backgroundColor: '#7a6b4a', color: 'white' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8a7b5a'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7a6b4a'}
