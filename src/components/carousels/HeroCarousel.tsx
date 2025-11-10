@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useCarousel } from './Carousel';
 
 // Interface defining the props for the HeroCarousel component
 interface HeroCarouselProps {
@@ -19,34 +20,25 @@ export default function HeroCarousel({
   pauseOnHover = true,
   className = '',
 }: HeroCarouselProps) {
-  // useState hook: Tracks which slide is currently visible
-  const [currentIndex, setCurrentIndex] = useState(0);
-  
   // useState hook: Tracks whether auto-play is currently paused
   const [isPaused, setIsPaused] = useState(false);
   
   // useRef hook: Stores the interval ID returned by setInterval
   const intervalRef = useRef<number | null>(null);
   
-  // useRef hook: Stores the X coordinate where a touch gesture started
-  const touchStartX = useRef<number | null>(null);
-  
-  // useRef hook: Stores the X coordinate where a touch gesture ended
-  const touchEndX = useRef<number | null>(null);
-
-  // Function to navigate to the previous slide.
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? items.length - 1 : prevIndex - 1
-    );
-  };
-
-  // Function to navigate to the next slide.
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === items.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  // useCarousel hook: Provides shared carousel logic (state, navigation, touch handlers)
+  const {
+    currentIndex,
+    setCurrentIndex,
+    goToPrevious,
+    goToNext,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  } = useCarousel({
+    itemCount: items.length,
+    loop: true,
+  });
 
   // useEffect hook: Manages the auto-play interval timer
   useEffect(() => {
@@ -86,41 +78,6 @@ export default function HeroCarousel({
     }
   };
 
-  // Event handler for when a touch gesture starts on mobile devices.
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // Store the X coordinate of the first touch point
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  // Event handler for when a touch gesture moves (user is dragging).
-  const handleTouchMove = (e: React.TouchEvent) => {
-    // Update the end position as the user drags their finger
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  // Event handler for when a touch gesture ends (user lifts finger).
-  const handleTouchEnd = () => {
-    // Early return if touch coordinates weren't properly captured
-    if (!touchStartX.current || !touchEndX.current) return;
-
-    // Calculate the distance swiped (positive = swiped left, negative = swiped right)
-    const distance = touchStartX.current - touchEndX.current;
-    // Minimum distance in pixels required to trigger a slide change
-    const minSwipeDistance = 50;
-
-    // If swiped left (positive distance > threshold), go to next slide
-    if (distance > minSwipeDistance) {
-      goToNext();
-    } 
-    // If swiped right (negative distance < -threshold), go to previous slide
-    else if (distance < -minSwipeDistance) {
-      goToPrevious();
-    }
-
-    // Reset touch coordinates for the next gesture
-    touchStartX.current = null;
-    touchEndX.current = null;
-  };
 
   // Early return: Don't render anything if there are no items to display
   if (items.length === 0) return null;

@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useCarousel } from './Carousel';
 
 // Interface defining the props for the SuggestionsCarousel component
 interface SuggestionsCarouselProps {
@@ -19,9 +20,6 @@ export default function SuggestionsCarousel({
   itemsVisible = 4,
   mobileItemsVisible = 3,
 }: SuggestionsCarouselProps) {
-  // useState hook: Tracks the starting index of the currently visible items
-  const [currentIndex, setCurrentIndex] = useState(0);
-  
   // useState hook: Tracks the current number of visible items based on screen size
   // Initialize based on current window width
   const [currentItemsVisible, setCurrentItemsVisible] = useState(() => {
@@ -31,11 +29,23 @@ export default function SuggestionsCarousel({
     return itemsVisible;
   });
   
-  // useRef hook: Stores the X coordinate where a touch gesture started
-  const touchStartX = useRef<number | null>(null);
+  // Calculate the maximum index we can scroll to
+  const maxIndex = Math.max(0, items.length - currentItemsVisible);
   
-  // useRef hook: Stores the X coordinate where a touch gesture ended
-  const touchEndX = useRef<number | null>(null);
+  // useCarousel hook: Provides shared carousel logic (state, navigation, touch handlers)
+  const {
+    currentIndex,
+    setCurrentIndex,
+    goToPrevious,
+    goToNext,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  } = useCarousel({
+    itemCount: items.length,
+    loop: false,
+    maxIndex,
+  });
 
   // useEffect hook: Update visible items count based on screen size
   useEffect(() => {
@@ -46,9 +56,9 @@ export default function SuggestionsCarousel({
       setCurrentItemsVisible(newItemsVisible);
       
       // Reset currentIndex if it's out of bounds after screen size change
+      const newMaxIdx = Math.max(0, items.length - newItemsVisible);
       setCurrentIndex((prevIndex) => {
-        const maxIdx = Math.max(0, items.length - newItemsVisible);
-        return prevIndex > maxIdx ? maxIdx : prevIndex;
+        return prevIndex > newMaxIdx ? newMaxIdx : prevIndex;
       });
     };
 
@@ -58,62 +68,8 @@ export default function SuggestionsCarousel({
     return () => {
       window.removeEventListener('resize', updateItemsVisible);
     };
-  }, [itemsVisible, mobileItemsVisible, items.length]);
+  }, [itemsVisible, mobileItemsVisible, items.length, setCurrentIndex]);
 
-  // Calculate the maximum index we can scroll to
-  const maxIndex = Math.max(0, items.length - currentItemsVisible);
-
-  // Function to navigate to show previous items (scroll left).
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => {
-      if (prevIndex === 0) return prevIndex;
-      return prevIndex - 1;
-    });
-  };
-
-  // Function to navigate to show next items (scroll right).
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => {
-      if (prevIndex >= maxIndex) return prevIndex;
-      return prevIndex + 1;
-    });
-  };
-
-  // Event handler for when a touch gesture starts on mobile devices.
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // Store the X coordinate of the first touch point
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  // Event handler for when a touch gesture moves (user is dragging).
-  const handleTouchMove = (e: React.TouchEvent) => {
-    // Update the end position as the user drags their finger
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  // Event handler for when a touch gesture ends (user lifts finger).
-  const handleTouchEnd = () => {
-    // Early return if touch coordinates weren't properly captured
-    if (!touchStartX.current || !touchEndX.current) return;
-
-    // Calculate the distance swiped (positive = swiped left, negative = swiped right)
-    const distance = touchStartX.current - touchEndX.current;
-    // Minimum distance in pixels required to trigger a slide change
-    const minSwipeDistance = 50;
-
-    // If swiped left (positive distance > threshold) AND can scroll right, go to next
-    if (distance > minSwipeDistance && currentIndex < maxIndex) {
-      goToNext();
-    } 
-    // If swiped right (negative distance < -threshold) AND can scroll left, go to previous
-    else if (distance < -minSwipeDistance && currentIndex > 0) {
-      goToPrevious();
-    }
-
-    // Reset touch coordinates for the next gesture
-    touchStartX.current = null;
-    touchEndX.current = null;
-  };
 
   // Early return: Don't render anything if there are no items to display
   if (items.length === 0) return null;

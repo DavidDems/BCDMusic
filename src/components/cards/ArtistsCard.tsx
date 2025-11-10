@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import SuggestionsCarousel from './SuggestionsCarousel';
+import SuggestionsCarousel from '../carousels/SuggestionsCarousel';
 // Import the typescript interface for the artists
 import { artists } from '../../data/artists';
-import DetailsCard from '../cards/DetailsCard';
+import DetailsCard from './DetailsCard';
 
 // Artists() function that creates the list of recommended artists in a carousel
-export default function Artists() {
+export default function ArtistsCard() {
   const [selectedArtist, setSelectedArtist] = useState<typeof artists[0] | null>(null);
   // Create the carousel items to be mapped in the carousel
   const carouselItems = artists.map((artist) => (

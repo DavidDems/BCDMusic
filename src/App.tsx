@@ -4,7 +4,7 @@ import Navbar from './components/supporting/Navbar';
 import MobileNavbar from './components/supporting/MobileNavbar';
 import HeroCard from './components/cards/HeroCard';
 import SectionCard from './components/cards/SectionCard';
-import Artists from './components/carousels/Artists';
+import ArtistsCard from './components/cards/ArtistsCard';
 import UpcomingEventsCard from './components/cards/UpcomingEventsCard';
 import SuggestionCard from './components/cards/SuggestionCard';
 import ArticleCard from './components/cards/ArticleCard';
@@ -53,7 +53,7 @@ function App() {
           <UpcomingEventsCard />
         </section>
         <section id="artists">
-          <Artists />
+          <ArtistsCard />
         </section>
         <section id="playlists">
           <SuggestionCard />
